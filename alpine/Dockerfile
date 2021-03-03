@@ -1,4 +1,4 @@
-FROM openjdk:8u191-jdk-alpine
+FROM openjdk:15-jdk-alpine3.12
 
 ENV SDKMAN_DIR=/root/.sdkman
 
@@ -9,7 +9,7 @@ RUN	echo "add needed tools" && \
     apk add --no-cache curl wget zip unzip git bash \
     git \
     graphviz \
-    python \
+    py-pip \
     ruby \
     py-pygments \
     libc6-compat \
@@ -18,9 +18,19 @@ RUN	echo "add needed tools" && \
     gem install pygments.rb
 
 # Add pandoc
-# https://github.com/advancedtelematic/dockerfiles/blob/master/doctools/Dockerfile
-#RUN apk add --no-cache cmark --repository http://nl.alpinelinux.org/alpine/edge/testing && \
-#    apk add --no-cache --allow-untrusted pandoc --repository https://conoria.gitlab.io/alpine-pandoc/
+
+# Reinstall any system packages required for runtime of pandoc.
+RUN apk --no-cache add \
+        gmp \
+        libffi \
+        lua5.3 \
+        lua5.3-lpeg
+
+COPY --from=pandoc/core:2.11.4 \
+    /usr/local/bin/pandoc \
+    /usr/local/bin/pandoc-citeproc \
+    /usr/local/bin/
+
 
 SHELL ["/bin/bash", "-c"]
 
@@ -34,7 +44,7 @@ RUN	echo "Install java, groovy" && \
     source $HOME/.sdkman/bin/sdkman-init.sh
 #    sdk install groovy 2.5.5
 
-RUN     git clone --depth 1 https://github.com/docToolchain/docToolchain.git && \
+RUN     git clone --depth 10 https://github.com/docToolchain/docToolchain.git && \
         cd docToolchain && \
         git checkout v1.3.1 && \
         git submodule update -i && \
@@ -53,3 +63,6 @@ WORKDIR /project
 VOLUME /project
 
 ENTRYPOINT /bin/bash
+
+
+
