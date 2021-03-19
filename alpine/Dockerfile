@@ -1,4 +1,4 @@
-FROM openjdk:15-jdk-alpine3.12
+FROM openjdk:14-jdk-alpine
 
 ENV SDKMAN_DIR=/root/.sdkman
 
@@ -26,10 +26,10 @@ RUN apk --no-cache add \
         lua5.3 \
         lua5.3-lpeg
 
-COPY --from=pandoc/core:2.11.4 \
-    /usr/local/bin/pandoc \
-    /usr/local/bin/pandoc-citeproc \
-    /usr/local/bin/
+COPY --from=pandoc/core:2.9 \
+    /usr/bin/pandoc \
+    /usr/bin/pandoc-citeproc \
+    /usr/bin
 
 
 SHELL ["/bin/bash", "-c"]
